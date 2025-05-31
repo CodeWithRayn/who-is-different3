@@ -1,0 +1,557 @@
+
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>من هو المختلف؟</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background-color: #00796b;
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .menu-icon {
+      font-size: 28px;
+      cursor: pointer;
+      user-select: none;
+      color: white;
+    }
+
+    .menu {
+      position: relative;
+    }
+
+    .menu-content {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      min-width: 180px;
+      border-radius: 8px;
+      text-align: right;
+    }
+
+    .menu-content button {
+      display: block;
+      width: 100%;
+      background: none;
+      color: #00796b;
+      border: none;
+      padding: 10px;
+      text-align: right;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .menu-content button:hover {
+      background-color: #f1f1f1;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .hidden { display: none; }
+
+    input, textarea {
+      width: 80%;
+      padding: 12px;
+      font-size: 16px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #009688;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #00796b;
+    }
+
+    .card {
+      background: #f0f4f8;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .timer {
+      font-size: 20px;
+      color: #d32f2f;
+      margin-top: 10px;
+    }
+
+    .votes {
+      margin-top: 20px;
+    }
+
+    .votes label {
+      display: inline-block;
+      background-color: #f9f9f9;
+      padding: 10px 20px;
+      border-radius: 12px;
+      margin: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .votes label:hover {
+      background-color: #e0f2f1;
+      border-color: #009688;
+    }
+
+    .votes input[type="radio"] {
+      display: none;
+    }
+
+    .votes input[type="radio"]:checked + span {
+      font-weight: bold;
+      color: #00796b;
+      text-decoration: underline;
+    }
+
+    #custom-rounds-container {
+      margin-top: 20px;
+    }
+
+    #custom-rounds-container input {
+      width: 150px;
+      text-align: center;
+    }
+
+    #share-modal {
+      position: fixed;
+      top: 30%;
+      right: 10%;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 2000;
+    }
+
+    #share-modal button {
+      background: none;
+      border: none;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    #share-modal .close-btn {
+      display: block;
+      margin-top: 10px;
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="menu-icon" onclick="toggleMenu()">&#9776;</div>
+  </i> لعبة من هو المختلف؟</div>
+  <div class="menu">
+    <div class="menu-content" id="menu-content">
+      <button onclick="contactUs()"><i class="fas fa-envelope"></i> تواصل معنا</button>
+      <button onclick="openShareOptions()"><i class="fas fa-share-alt"></i> انشر اللعبة</button>
+    </div>
+  </div>
+</header>
+
+<div id="setup" class="container">
+  <h2>أسماء اللاعبين</h2>
+  <div id="players-inputs">
+    <input type="text" placeholder="اسم اللاعب" />
+  </div>
+  <div id="custom-rounds-container">
+    <label for="rounds-input">عدد الجولات:</label>
+    <input type="number" id="rounds-input" min="1" max="20" value="5" />
+  </div>
+  <button onclick="addPlayer()">إضافة لاعب</button>
+  <button onclick="startGame()">بدء اللعبة</button>
+</div>
+
+<div id="game" class="container hidden">
+  <h2>الجولة <span id="round-number">1</span> / <span id="total-rounds">5</span></h2>
+  <div class="card">
+    <h3>الدور على: <span id="current-player-name"></span></h3>
+    <p id="question-box"></p>
+    <textarea id="answer-input" rows="3" placeholder="اكتب إجابتك هنا..."></textarea>
+    <div class="timer" id="timer">⏳ 30</div>
+    <button onclick="submitAnswer()">إرسال</button>
+  </div>
+</div>
+
+<div id="vote-section" class="container hidden">
+  <h2>التصويت</h2>
+  <div id="vote-options" class="votes"></div>
+  <button onclick="showResult()">عرض النتيجة</button>
+</div>
+
+<div id="result-section" class="container hidden">
+  <h2>النتيجة</h2>
+  <div id="result-text"></div>
+  <h3>إجابات اللاعبين</h3>
+  <div id="answers-log"></div>
+</div>
+
+<!-- نافذة المشاركة -->
+<div id="share-modal" class="hidden">
+  <button onclick="shareWhatsApp()" title="مشاركة عبر واتساب">
+    <i class="fab fa-whatsapp" style="color: #25D366; font-size: 28px;"></i>
+  </button>
+  <button onclick="shareTelegram()" title="مشاركة عبر تلغرام">
+    <i class="fab fa-telegram" style="color: #0088cc; font-size: 28px;"></i>
+  </button>
+  <button class="close-btn" onclick="closeShareOptions()">إغلاق</button>
+</div>
+
+<script>
+let players = [], spyIndex = -1, currentRound = 1, currentPlayerIndex = 0;
+let totalRounds = 5;
+let answers = {};            // يحتفظ بكل إجابات كل اللاعبين لكل الجولات
+let currentRoundAnswers = {}; // يحتفظ بإجابات الجولة الحالية فقط
+let timerInterval, timeLeft = 30;
+let showingAnswers = false;  // هل نحن في وضع عرض الإجابات بعد الجولة؟
+
+const questions = [
+  "كم أكثر عدات بوش اب سويت في حياتك؟",
+  "كم عمرك؟",
+  "ما أسم صغير الأسد؟",
+  "ماهو لونك المفضل؟",
+  "من أكثر شخص تحبه في حياتك؟",
+];
+
+const differentQuestions = [
+  "اختار رقم من 1-100",
+  "اختار رقم من 1-100",
+  "ماهو الحيوان المفضل لديك؟",
+  "ما الشيء الذي لا تحبه في الصداقات؟",
+  "اختر أحد من أقاربك",
+];
+
+function addPlayer() {
+  const input = document.createElement("input");
+  input.placeholder = "اسم اللاعب";
+  document.getElementById("players-inputs").appendChild(input);
+}
+
+function startGame() {
+  players = Array.from(document.querySelectorAll("#players-inputs input"))
+    .map((input) => input.value.trim()).filter((n) => n);
+  if (players.length < 3) return alert("يجب 3 لاعبين على الأقل.");
+  totalRounds = parseInt(document.getElementById("rounds-input").value) || 5;
+  document.getElementById("total-rounds").textContent = totalRounds;
+  spyIndex = Math.floor(Math.random() * players.length);
+  answers = {};
+  currentRoundAnswers = {};
+  currentRound = 1;
+  currentPlayerIndex = 0;
+  showingAnswers = false;
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("vote-section").classList.add("hidden");
+  document.getElementById("result-section").classList.add("hidden");
+  startPlayerTurn();
+}
+
+function startPlayerTurn() {
+  document.getElementById("round-number").textContent = currentRound;
+  const player = players[currentPlayerIndex];
+  document.getElementById("current-player-name").textContent = player;
+  document.getElementById("answer-input").value = "";
+
+  // اختيار السؤال حسب ما إذا كان اللاعب جاسوس أو لا
+  const question = (currentRound - 1) < questions.length
+    ? (currentPlayerIndex === spyIndex ? differentQuestions[currentRound - 1] : questions[currentRound - 1])
+    : "اكتب إجابتك";
+
+  document.getElementById("question-box").textContent = question;
+
+  timeLeft = 30;
+  document.getElementById("timer").textContent = `⏳ ${timeLeft}`;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = `⏳ ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      submitAnswer();
+    }
+  }, 1000);
+}
+
+function submitAnswer() {
+  clearInterval(timerInterval);
+  const answer = document.getElementById("answer-input").value.trim() || "(لم يجب)";
+  const player = players[currentPlayerIndex];
+
+  // حفظ إجابة الجولة الحالية لكل لاعب
+  if (!currentRoundAnswers[player]) currentRoundAnswers[player] = [];
+  currentRoundAnswers[player].push(answer);
+
+  // حفظ إجابة اللاعب ضمن الإجابات العامة لكل الجولات
+  if (!answers[player]) answers[player] = [];
+  answers[player].push(answer);
+
+  currentPlayerIndex++;
+
+  if (currentPlayerIndex >= players.length) {
+    // انتهى جميع اللاعبين في الجولة الحالية
+    currentPlayerIndex = 0;
+
+    // بدلاً من بدء الجولة التالية فوراً، نعرض الإجابات أولاً
+    showingAnswers = true;
+    showRoundAnswers();
+  } else {
+    // استكمال دور اللاعب التالي في نفس الجولة
+    startPlayerTurn();
+  }
+}
+
+function showRoundAnswers() {
+  document.getElementById("game").classList.add("hidden");
+
+  const log = document.getElementById("answers-log");
+  log.innerHTML = `<h3>إجابات الجولة رقم ${currentRound}</h3>`;
+  for (const p of players) {
+    const playerAnswers = currentRoundAnswers[p] || [];
+    const lastAnswer = playerAnswers[playerAnswers.length - 1] || "(لم يجب)";
+    log.innerHTML += `<div><strong>${p}:</strong> ${lastAnswer}</div>`;
+  }
+
+  document.getElementById("result-text").innerHTML = '';
+  document.getElementById("vote-section").classList.add("hidden");
+  document.getElementById("result-section").classList.remove("hidden");
+
+  // زر للمضي إلى الجولة التالية
+  if (!document.getElementById("next-round-btn")) {
+    const btn = document.createElement("button");
+    btn.id = "next-round-btn";
+    btn.textContent = "التالي";
+    btn.onclick = nextRound;
+    document.getElementById("result-section").appendChild(btn);
+  }
+}
+
+function nextRound() {
+  document.getElementById("result-section").classList.add("hidden");
+  showingAnswers = false;
+
+  currentRound++;
+  currentRoundAnswers = {};
+
+  if (currentRound > totalRounds) {
+    showVoting();
+  } else {
+    document.getElementById("game").classList.remove("hidden");
+    startPlayerTurn();
+  }
+}
+
+function showVoting() {
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("result-section").classList.add("hidden");
+  document.getElementById("vote-section").classList.remove("hidden");
+
+  const voteOptions = document.getElementById("vote-options");
+  voteOptions.innerHTML = '';
+
+  players.forEach((player, index) => {
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="radio" name="vote" value="${index}" /><span>${player}</span>`;
+    voteOptions.appendChild(label);
+  });
+}
+
+function showResult() {
+  const selected = document.querySelector('input[name="vote"]:checked');
+  if (!selected) {
+    alert("اختر من تريد التصويت عليه.");
+    return;
+  }
+  const votedIndex = parseInt(selected.value);
+  const votedPlayer = players[votedIndex];
+
+  document.getElementById("vote-section").classList.add("hidden");
+  document.getElementById("result-section").classList.remove("hidden");
+
+  let text = `لقد صوتت على: <strong>${votedPlayer}</strong>.<br>`;
+  if (votedIndex === spyIndex) {
+    text += "أحسنت! لقد اكتشفت الجاسوس.";
+  } else {
+    text += `للأسف، الجاسوس كان: <strong>${players[spyIndex]}</strong>.`;
+  }
+
+  // عرض كل الإجابات لجميع الجولات
+  text += "<hr><h3>جميع إجابات اللاعبين:</h3>";
+  for (const p of players) {
+    text += `<div><strong>${p}:</strong> `;
+    text += answers[p].map((a, i) => `جولة ${i+1}: ${a}`).join("<br>");
+    text += "</div><br>";
+  }
+
+  document.getElementById("result-text").innerHTML = text;
+
+  // إزالة زر التالي بعد انتهاء اللعبة
+  const nextBtn = document.getElementById("next-round-btn");
+  if (nextBtn) nextBtn.remove();
+}
+
+function restartGame() {
+  players = [];
+  spyIndex = -1;
+  currentRound = 1;
+  currentPlayerIndex = 0;
+  answers = {};
+  currentRoundAnswers = {};
+  showingAnswers = false;
+
+  document.getElementById("players-inputs").innerHTML =
+    '<input type="text" placeholder="اسم اللاعب" />';
+  document.getElementById("rounds-input").value = 5;
+  document.getElementById("setup").classList.remove("hidden");
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("vote-section").classList.add("hidden");
+  document.getElementById("result-section").classList.add("hidden");
+
+  const nextBtn = document.getElementById("next-round-btn");
+  if (nextBtn) nextBtn.remove();
+}
+
+function toggleMenu() {
+  const menu = document.getElementById("menu-content");
+  if (menu.style.display === "block") {
+    menu.style.display = "none";
+  } else {
+    menu.style.display = "block";
+  }
+}
+
+function contactUs() {
+  window.location.href = "mailto:gaveseo@gmail.com";
+}
+
+function openShareOptions() {
+  document.getElementById("share-modal").classList.remove("hidden");
+}
+
+function closeShareOptions() {
+  document.getElementById("share-modal").classList.add("hidden");
+}
+
+function shareWhatsApp() {
+  const url = encodeURIComponent(window.location.href);
+  window.open(`https://wa.me/?text=${url}`, "_blank");
+}
+
+function shareTelegram() {
+  const url = encodeURIComponent(window.location.href);
+  window.open(`https://t.me/share/url?url=${url}`, "_blank");
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
